@@ -1,4 +1,4 @@
-struct UnionFind {
+pub struct UnionFind {
     parent: Vec<usize>,
     rank: Vec<usize>,
 }
