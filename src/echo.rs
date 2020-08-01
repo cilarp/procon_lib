@@ -2,7 +2,7 @@ use std::io::Write;
 
 pub trait Echo {
     fn echo(&self);
-    fn echo_b(&self, out: &mut std::io::Stdout) -> Result<(), std::io::Error>;
+    fn echo_b(&self, out: &mut std::io::StdoutLock) -> Result<(), std::io::Error>;
 }
 
 macro_rules! impl_echo {
@@ -10,10 +10,10 @@ macro_rules! impl_echo {
         $(
             impl Echo for $t {
                 fn echo(&self){
-                    self.echo_b(&mut std::io::stdout()).unwrap();
+                    self.echo_b(&mut std::io::stdout().lock()).unwrap();
                 }
 
-                fn echo_b(&self, out: &mut std::io::Stdout) -> Result<(), std::io::Error>{
+                fn echo_b(&self, out: &mut std::io::StdoutLock) -> Result<(), std::io::Error>{
                     writeln!(out,"{}", &self)?;
                     Ok(())
                 }
@@ -27,10 +27,10 @@ macro_rules! impl_echo_f {
         $(
             impl Echo for $t {
                 fn echo(&self){
-                    self.echo_b(&mut std::io::stdout()).unwrap();
+                    self.echo_b(&mut std::io::stdout().lock()).unwrap();
                 }
 
-                fn echo_b(&self, out: &mut std::io::Stdout) -> Result<(), std::io::Error>{
+                fn echo_b(&self, out: &mut std::io::StdoutLock) -> Result<(), std::io::Error>{
                     writeln!(out,"{:.12}", &self)?;
                     Ok(())
                 }
@@ -46,9 +46,9 @@ impl_echo_f!(f32, f64);
 
 impl<T: Echo> Echo for Vec<T> {
     fn echo(&self) {
-        self.echo_b(&mut std::io::stdout()).unwrap();
+        self.echo_b(&mut std::io::stdout().lock()).unwrap();
     }
-    fn echo_b(&self, out: &mut std::io::Stdout) -> Result<(), std::io::Error> {
+    fn echo_b(&self, out: &mut std::io::StdoutLock) -> Result<(), std::io::Error> {
         for i in self {
             i.echo_b(out).unwrap();
         }
