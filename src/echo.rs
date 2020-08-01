@@ -1,8 +1,9 @@
 use std::io::Write;
 
+#[macro_export]
 macro_rules! echo {
     ($e:expr) => {
-        $e.echo(&mut std::io::stdout())
+        $e.echo(&mut std::io::stdout()).unwrap()
     };
 }
 
@@ -44,7 +45,7 @@ impl_echo_f!(f32, f64);
 impl<T: Echo> Echo for Vec<T> {
     fn echo(&self, out: &mut std::io::Stdout) -> Result<(), std::io::Error> {
         for i in self {
-            i.echo(out);
+            i.echo(out).unwrap();
         }
         Ok(())
     }
