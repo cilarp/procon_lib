@@ -1,15 +1,23 @@
+use std::io::Write;
+
+macro_rules! echo {
+    ($e:expr) => {
+        $e.echo(&mut std::io::stdout())
+    };
+}
+
 pub trait Echo {
-    fn echo(&self);
+    fn echo(&self, out: &mut std::io::Stdout) -> Result<(), std::io::Error>;
 }
 
 macro_rules! impl_echo {
     ($($t:ty),*) => {
         $(
             impl Echo for $t {
-                fn echo(&self) {
-                    println!("{}", &self);
+                fn echo(&self, out: &mut std::io::Stdout) -> Result<(), std::io::Error>{
+                    writeln!(out,"{}", &self)?;
+                    Ok(())
                 }
-
             }
         )*
     };
@@ -19,8 +27,9 @@ macro_rules! impl_echo_f {
     ($($t:ty),*) => {
         $(
             impl Echo for $t {
-                fn echo(&self) {
-                    println!("{:.12}", &self);
+                fn echo(&self, out: &mut std::io::Stdout) -> Result<(), std::io::Error>{
+                    writeln!(out,"{:.12}", &self)?;
+                    Ok(())
                 }
             }
         )*
@@ -33,9 +42,10 @@ impl_echo!(&str, String, char);
 impl_echo_f!(f32, f64);
 
 impl<T: Echo> Echo for Vec<T> {
-    fn echo(&self) {
+    fn echo(&self, out: &mut std::io::Stdout) -> Result<(), std::io::Error> {
         for i in self {
-            i.echo();
+            i.echo(out);
         }
+        Ok(())
     }
 }
