@@ -39,9 +39,21 @@ macro_rules! impl_sub {
             impl Sub<$t> for ModInt {
                 type Output = ModInt;
                 fn sub(self, rhs: $t) -> Self::Output {
-                    Self {
-                        modulo: self.modulo,
-                        value: (self.value - (rhs % self.modulo as $t) as usize) % self.modulo,
+                    let rhs = rhs as u128;
+                    let value = self.value as u128;
+                    if value < rhs{
+                        let value = rhs - value;
+                        let value = value * 2 % self.modulo as u128;
+                        let value = value as usize;
+                        Self{
+                            modulo: self.modulo,
+                            value
+                        }
+                    }else{
+                        Self {
+                            modulo: self.modulo,
+                            value: (self.value - (rhs % self.modulo as u128) as usize) % self.modulo,
+                        }
                     }
 
                 }
@@ -54,7 +66,16 @@ macro_rules! impl_sub_as {
         $(
             impl SubAssign<$t> for ModInt {
                 fn sub_assign(&mut self, rhs: $t){
-                    self.value = (self.value - (rhs % self.modulo as $t) as usize) % self.modulo;
+                    let rhs = rhs as u128;
+                    let value = self.value as u128;
+                    if value < rhs{
+                        let value = rhs - value;
+                        let value = value * 2 % self.modulo as u128;
+                        let value = value as usize;
+                        self.value = value;
+                    }else{
+                        self.value = (self.value - (rhs % self.modulo as u128) as usize) % self.modulo;
+                    }
                 }
             }
         )*
