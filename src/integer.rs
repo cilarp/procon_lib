@@ -2,6 +2,7 @@ pub trait Integer {
     fn gcd(&self, other: Self) -> Self;
     fn lcm(&self, other: Self) -> Self;
     fn is_prime(&self) -> bool;
+    fn get_div(&self) -> Vec<usize>;
 }
 
 macro_rules! impl_integer {
@@ -49,6 +50,23 @@ macro_rules! impl_integer {
                         i += 1;
                     }
                     true
+                }
+
+                fn get_div(&self) -> Vec<usize>{
+                    let n = *self;
+                    let mut v: Vec<usize> = Vec::new();
+                    let mut i = 1;
+                    while i * i <= n{
+                        if n % i == 0{
+                            v.push(i as usize);
+                            if i != n / i{
+                                v.push((n / i) as usize);
+                            }
+                        }
+                        i += 1;
+                    }
+                    v.sort();
+                    v
                 }
             }
         )*
