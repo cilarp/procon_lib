@@ -1,7 +1,7 @@
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 struct ModInt {
-    m: usize,
+    modulo: usize,
     content: usize,
 }
 
@@ -12,8 +12,8 @@ macro_rules! impl_add {
                 type Output = ModInt;
                 fn add(self, rhs: $t) -> Self::Output {
                     Self {
-                        m: self.m,
-                        content: (self.content + (rhs % self.m as $t) as usize) % self.m,
+                        modulo: self.modulo,
+                        content: (self.content + (rhs % self.modulo as $t) as usize) % self.modulo,
                     }
 
                 }
@@ -26,7 +26,7 @@ macro_rules! impl_add_as {
         $(
             impl AddAssign<$t> for ModInt {
                 fn add_assign(&mut self, rhs: $t){
-                    self.content = (self.content + (rhs % self.m as $t) as usize) % self.m;
+                    self.content = (self.content + (rhs % self.modulo as $t) as usize) % self.modulo;
 
                 }
             }
@@ -40,8 +40,8 @@ macro_rules! impl_sub {
                 type Output = ModInt;
                 fn sub(self, rhs: $t) -> Self::Output {
                     Self {
-                        m: self.m,
-                        content: (self.content - (rhs % self.m as $t) as usize) % self.m,
+                        modulo: self.modulo,
+                        content: (self.content - (rhs % self.modulo as $t) as usize) % self.modulo,
                     }
 
                 }
@@ -54,7 +54,7 @@ macro_rules! impl_sub_as {
         $(
             impl SubAssign<$t> for ModInt {
                 fn sub_assign(&mut self, rhs: $t){
-                    self.content = (self.content - (rhs % self.m as $t) as usize) % self.m;
+                    self.content = (self.content - (rhs % self.modulo as $t) as usize) % self.modulo;
                 }
             }
         )*
@@ -67,8 +67,8 @@ macro_rules! impl_mul {
                 type Output = ModInt;
                 fn mul(self,rhs: $t) -> Self::Output{
                     Self{
-                        m: self.m,
-                        content: self.content * (rhs % self.m as $t) as usize % self.m,
+                        modulo: self.modulo,
+                        content: self.content * (rhs % self.modulo as $t) as usize % self.modulo,
                     }
                 }
             }
@@ -80,7 +80,7 @@ macro_rules! impl_mul_as {
         $(
             impl MulAssign<$t> for ModInt {
                 fn mul_assign(&mut self, rhs: $t){
-                    self.content = (self.content * (rhs % self.m as $t) as usize) % self.m;
+                    self.content = (self.content * (rhs % self.modulo as $t) as usize) % self.modulo;
                 }
             }
         )*
@@ -92,11 +92,11 @@ macro_rules! impl_div {
             impl Div<$t> for ModInt{
                 type Output = ModInt;
                 fn div(self,rhs: $t) -> Self::Output{
-                    let rhs = rhs as u128 % self.m as u128;
-                    let rhs = ModInt::new(self.m, rhs as usize);
+                    let rhs = rhs as u128 % self.modulo as u128;
+                    let rhs = ModInt::new(self.modulo, rhs as usize);
                     Self{
-                        m: self.m,
-                        content: self.content * rhs.inverse() % self.m,
+                        modulo: self.modulo,
+                        content: self.content * rhs.inverse() % self.modulo,
                     }
                 }
             }
@@ -108,9 +108,9 @@ macro_rules! impl_div_as {
         $(
             impl DivAssign<$t> for ModInt{
                 fn div_assign(&mut self,rhs: $t){
-                    let rhs = rhs as u128 % self.m as u128;
-                    let rhs = ModInt::new(self.m, rhs as usize);
-                    self.content = self.content * rhs.inverse() % self.m;
+                    let rhs = rhs as u128 % self.modulo as u128;
+                    let rhs = ModInt::new(self.modulo, rhs as usize);
+                    self.content = self.content * rhs.inverse() % self.modulo;
                 }
             }
         )*
@@ -124,20 +124,20 @@ impl_sub_as!(u8, u16, u32, u64, u128, usize);
 impl_mul!(u8, u16, u32, u64, u128, usize);
 impl_mul_as!(u8, u16, u32, u64, u128, usize);
 impl_div!(u8, u16, u32, u64, u128);
-impl_div_as!(u8, u16, u32, u64, u128);
+impl_div_as!(u8, u16, u32, u64, u128, usize);
 
 impl ModInt {
     #[allow(dead_code)]
-    fn new(m: usize, content: usize) -> Self {
+    fn new(modulo: usize, content: usize) -> Self {
         Self {
-            m,
-            content: content % m,
+            modulo,
+            content: content % modulo,
         }
     }
 
     #[allow(dead_code)]
     fn set(&mut self, content: usize) {
-        self.content = content % self.m;
+        self.content = content % self.modulo;
     }
 
     #[allow(dead_code)]
@@ -156,13 +156,13 @@ impl ModInt {
     fn inverse(&self) -> usize {
         let mut x = 0;
         let mut y = 0;
-        Self::ext_gcd(self.content, self.m, &mut x, &mut y);
+        Self::ext_gcd(self.content, self.modulo, &mut x, &mut y);
         if x < 0 {
             let x = x.abs() as usize * 2;
-            let x = x % self.m;
+            let x = x % self.modulo;
             x
         } else {
-            let x = x as usize % self.m;
+            let x = x as usize % self.modulo;
             x
         }
     }
