@@ -38,7 +38,7 @@ macro_rules! impl_integer {
                     }
 
                     if n == 2{
-                        return true;
+                        return true
                     }
 
                     let mut i: Self = 2;
