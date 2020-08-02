@@ -13,7 +13,7 @@ macro_rules! impl_add {
                 fn add(self, rhs: $t) -> Self::Output {
                     Self {
                         modulo: self.modulo,
-                        value: (self.value + (rhs % self.modulo as $t) as usize) % self.modulo,
+                        value: (self.value + (rhs as u128 % self.modulo as u128) as usize) % self.modulo,
                     }
 
                 }
@@ -26,7 +26,7 @@ macro_rules! impl_add_as {
         $(
             impl AddAssign<$t> for ModInt {
                 fn add_assign(&mut self, rhs: $t){
-                    self.value = (self.value + (rhs % self.modulo as $t) as usize) % self.modulo;
+                    self.value = (self.value + (rhs as u128 % self.modulo as u128) as usize) % self.modulo;
 
                 }
             }
@@ -89,7 +89,7 @@ macro_rules! impl_mul {
                 fn mul(self,rhs: $t) -> Self::Output{
                     Self{
                         modulo: self.modulo,
-                        value: self.value * (rhs % self.modulo as $t) as usize % self.modulo,
+                        value: self.value * (rhs as u128 % self.modulo as u128) as usize % self.modulo,
                     }
                 }
             }
@@ -101,7 +101,7 @@ macro_rules! impl_mul_as {
         $(
             impl MulAssign<$t> for ModInt {
                 fn mul_assign(&mut self, rhs: $t){
-                    self.value = (self.value * (rhs % self.modulo as $t) as usize) % self.modulo;
+                    self.value = (self.value * (rhs as u128 % self.modulo as u128) as usize) % self.modulo;
                 }
             }
         )*
