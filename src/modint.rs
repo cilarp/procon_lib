@@ -144,8 +144,9 @@ impl_sub!(u8, u16, u32, u64, u128, usize);
 impl_sub_as!(u8, u16, u32, u64, u128, usize);
 impl_mul!(u8, u16, u32, u64, u128, usize);
 impl_mul_as!(u8, u16, u32, u64, u128, usize);
-impl_div!(u8, u16, u32, u64, u128);
-impl_div_as!(u8, u16, u32, u64, u128);
+
+impl_div!(u8, u16, u32, u64, u128, usize);
+impl_div_as!(u8, u16, u32, u64, u128, usize);
 
 impl ModInt {
     #[allow(dead_code)]
