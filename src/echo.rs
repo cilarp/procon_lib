@@ -1,57 +1,57 @@
-use std::io::Write;
+use std::io::{stdout, BufWriter, StdoutLock, Write};
+
+pub trait EchoBase {
+    fn echo(&self);
+    fn echo_with_stdout(&self, out: &mut BufWriter<StdoutLock>);
+}
 
 pub trait Echo {
     fn echo(&self);
-    fn echo_b(&self, out: &mut std::io::Stdout) -> Result<(), std::io::Error>;
 }
 
-macro_rules! impl_echo {
+macro_rules! impl_echo_base {
     ($($t:ty),*) => {
         $(
-            impl Echo for $t {
+            impl EchoBase for $t{
                 fn echo(&self){
-                    self.echo_b(&mut std::io::stdout()).unwrap();
+                    println!("{}",*self);
                 }
 
-                fn echo_b(&self, out: &mut std::io::Stdout) -> Result<(), std::io::Error>{
-                    writeln!(out,"{}", &self)?;
-                    Ok(())
+                fn echo_with_stdout(&self,out: &mut BufWriter<StdoutLock>){
+                    writeln!(out,"{}",self).unwrap();
                 }
             }
         )*
     };
 }
 
-macro_rules! impl_echo_f {
+macro_rules! impl_echo_base_f {
     ($($t:ty),*) => {
         $(
-            impl Echo for $t {
+            impl EchoBase for $t{
                 fn echo(&self){
-                    self.echo_b(&mut std::io::stdout()).unwrap();
+                    println!("{}",*self);
                 }
 
-                fn echo_b(&self, out: &mut std::io::Stdout) -> Result<(), std::io::Error>{
-                    writeln!(out,"{:.12}", &self)?;
-                    Ok(())
+                fn echo_with_stdout(&self,out: &mut BufWriter<StdoutLock>){
+                    writeln!(out,"{:.12}",self).unwrap();
                 }
             }
         )*
     };
 }
 
-impl_echo!(u8, u16, u32, u64, u128, usize);
-impl_echo!(i8, i16, i32, i64, i128, isize);
-impl_echo!(&str, String, char);
-impl_echo_f!(f32, f64);
+impl_echo_base!(u8, u16, u32, u64, u128, usize);
+impl_echo_base!(i8, i16, i32, i64, i128, isize);
+impl_echo_base!(char, &str, String);
+impl_echo_base_f!(f32, f64);
 
-impl<T: Echo> Echo for Vec<T> {
+impl<T: EchoBase> Echo for Vec<T> {
     fn echo(&self) {
-        self.echo_b(&mut std::io::stdout()).unwrap();
-    }
-    fn echo_b(&self, out: &mut std::io::Stdout) -> Result<(), std::io::Error> {
-        for i in self {
-            i.echo_b(out).unwrap();
+        let out = stdout();
+        let mut out = BufWriter::new(out.lock());
+        for i in self.clone().iter() {
+            i.echo_with_stdout(&mut out);
         }
-        Ok(())
     }
 }
